@@ -40,6 +40,7 @@ const captureEvent = async ({
             return;
         }
 
+        // deduplication goes here
         const incident = await db.getIncident({
             name: payload.name,
             message: payload.message,
@@ -65,6 +66,7 @@ const captureEvent = async ({
 
         const event = await db.createEvent({
             date: now,
+            // todo: incident need to be updated first right?
             incident,
             project: project,
 
@@ -72,6 +74,7 @@ const captureEvent = async ({
         }, client);
 
 
+        // m: no need for try/catch since it already inside a transaction
         if (!event) {
             // Rollback whole transaction if event has not been saved to postgres
             await client.query('ROLLBACK');

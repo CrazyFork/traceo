@@ -42,6 +42,7 @@ export const eventHandler = async ({
         const message = `❌ Cannot find handler for this topic: ${topic}`;
         logger.error(message);
 
+        // feed to itself
         ExceptionHandlers.catchException(new Error(message));
 
         return;

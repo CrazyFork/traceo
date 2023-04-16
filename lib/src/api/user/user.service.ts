@@ -31,6 +31,7 @@ export class UserService {
   public async createUser(userDto: CreateUserDto): Promise<ApiResponse<unknown>> {
     const { name, email, password, username } = userDto;
 
+    // m: group read & write into atomic operation so it won't cause race condition
     return await this.entityManager
       .transaction(async (manager) => {
         if (username) {
@@ -58,6 +59,9 @@ export class UserService {
           email,
           name,
           username: username.toLowerCase(),
+          // lib/src/common/helpers/tokens.ts
+          // m: sha256 is not secure I remember, it should use bcrypt
+          // maybe it's ok for internal usage
           password: tokenService.generate(password),
           isAdmin: false,
           gravatar: url,

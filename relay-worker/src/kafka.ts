@@ -24,6 +24,7 @@ export const createKafkaClient = async (configs: RelayWorkerConfig) => {
 
     const kafkaTopics = await admin.listTopics()
 
+    // re-create topics
     const topics = Object.values(KAFKA_TOPIC).filter((t) => !kafkaTopics.includes(t)).map((topic) => ({ topic }));
     if (topics.length > 0) {
         await admin.createTopics({ topics: topics });

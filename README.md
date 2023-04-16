@@ -1,3 +1,170 @@
+
+# todos
+
+* Q: how ui gotta rendered?
+    * A: rendering using SPA
+* Q: how fuzzy search logs
+    * lib/src/common/services/clickhouse/clickhouse.service.ts 
+    * it don't support fuzzy search for logs or Incidents
+    * 
+
+* nestjs passport
+    * https://docs.nestjs.com/recipes/passport#customize-passport
+* react form - https://react-hook-form.com/get-started/#Quickstart
+
+* pg database 
+    * relay-worker/src/db/database.ts - raw operation through pg driver/client
+
+
+
+# Notes
+
+* error handling
+
+this try/catch pattern is so pervasive, it's good practice to use annotation to abstract this
+repeatness away. since typescript don't support macro
+```
+  public async getPaginateApiListDto(query: QUERY): Promise<ApiResponse<PaginateType<ENTITY>>> {
+    try {
+      const response = await this.listDto(query);
+      return new ApiResponse("success", undefined, response);
+    } catch (error) {
+      throw new InternalServerError(error);
+    }
+  }
+```
+
+
+* db pattern
+
+```
+    await clickhouse.query({
+        query: 'SELECT 1'
+    }).catch((err) => {
+        logger.error(err);
+        ExceptionHandlers.catchException(`❌ Cannot connect to Clickhouse instance. Caused by: ${err}`);
+
+        throw err;
+    });
+
+```
+
+* gracefully exit
+
+```
+
+    process.on('beforeExit', async () => await onShutdown());
+
+    // https://www.baeldung.com/linux/sigint-and-other-termination-signals
+    process.on('SIGINT', async () => await onShutdown());
+    process.on('SIGTERM', async () => await onShutdown());
+    process.on('SIGHUP', async () => await onShutdown());
+```
+
+* webpack config
+
+```
+    optimization: {
+      moduleIds: "named",
+      runtimeChunk: true,
+      removeAvailableModules: false,
+      removeEmptyChunks: true,
+      splitChunks: false,
+      usedExports: true,
+      minimizer: ["...", new CssMinimizerPlugin()]
+    },
+
+```
+
+
+## socket io
+
+
+### server
+-> lib/src/api/incidents/incident-comments/incident-comments.service.ts
+```
+      this.live.publish(projectId, {
+        action: "new_comment",
+        message: comment
+      });
+```
+
+
+-> lib/src/common/services/live.service.ts
+
+```
+
+// config
+@WebSocketGateway({
+  cors: {
+    origin: process.env.APP_ORIGIN
+  }
+})
+export class LiveService {
+
+
+// publish
+    this.server.to(`ws:${projectId}`).emit(data.action, data.message);
+```
+
+
+### client
+-> public/packages/app/src/core/contexts/LiveContextProvider.tsx
+
+```
+// connect to server
+  const socket = useRef(
+    io(SOCKET_URL, {
+      transports: ["websocket"]
+    })
+  );
+
+  useEffect(() => {
+    socket.current.on("disconnect", removeConnection);
+
+    return () => {
+      if (socket && socket.current) {
+        removeConnection();
+      }
+    };
+  }, []);
+```
+
+
+-> public/packages/app/src/core/hooks/useLive.tsx
+add hooks
+
+```
+// hooks provides
+  return {
+    subscribe,
+    emit,
+    listen
+  };
+```
+
+-> public/packages/app/src/core/components/Layout/Wrappers/ProjectDashboardWrapper.tsx
+this is common layout for all pages. (this part seems optional, there's no usage for `socket.emit("subscribe_app", { id })`)
+        
+subscribe each project
+
+```
+
+  useEffect(() => {
+    live.subscribe(id); // id is projectId
+  }, []);
+```
+
+
+
+-> public/packages/app/src/features/project/incidents/IncidentConversationPage.tsx
+```
+  live.listen("new_comment", (comment: IComment) => {
+    dispatch(setIncidentComments([...comments, comment]));
+  });
+
+```
+
 # Traceo
 Traceo is an open-source, self-hosted set of tools for monitoring application health by collecting and aggregating data from the software. 
 

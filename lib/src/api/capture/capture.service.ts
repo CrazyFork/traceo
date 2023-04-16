@@ -14,6 +14,7 @@ export enum CAPTURE_ROUTE {
 
 const mapRouteToTopic: Record<CAPTURE_ROUTE, KAFKA_TOPIC> = {
     [CAPTURE_ROUTE.INCIDENT]: KAFKA_TOPIC.INCIDENT_EVENT,
+    // recreate topics if not there
     [CAPTURE_ROUTE.LOGS]: KAFKA_TOPIC.LOGS_EVENT,
     [CAPTURE_ROUTE.METRICS]: KAFKA_TOPIC.METRICS_EVENT,
     [CAPTURE_ROUTE.RUNTIME]: KAFKA_TOPIC.RUNTIME_EVENT,
@@ -58,6 +59,7 @@ export class CaptureService {
         if (api_key === undefined || api_key === null) {
             return this.exceptionResponse('Api key is not provided. You can generate your API KEY in project settings.')
         } else {
+            // m: simple yet effective, another way is to use (projectId, randomBytes) to Hmac, then verify using projectId?
             const isValid: boolean = this.isValidApiKey(api_key);
             if (!isValid) {
                 return this.exceptionResponse('Provided Api key is invalid.')
@@ -78,6 +80,7 @@ export class CaptureService {
             return this.exceptionResponse('Provided Api key is incorrect.')
         }
 
+        // payload need have a size limit
         const kafkaPayload: KafkaEventPayload = {
             sdk: sdk_name,
             projectId: project_id,

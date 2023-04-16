@@ -46,6 +46,7 @@ export class EventQueryService {
      * 
      * [{ date: [unix], count: [number] }]
      */
+    // why not use database group by and sum?
     private groupEventsByTime(events: Event[]) {
         const data: PlotData[] = [];
 

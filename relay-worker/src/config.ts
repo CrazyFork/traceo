@@ -26,20 +26,27 @@ const defaultConfig = (): RelayWorkerConfig => {
     return {
         KAFKA_AUTOCOMMIT_INTERVAL: 1000,
         KAFKA_AUTOCOMMIT_TRESHOLD: 1000,
+
         KAFKA_CLIENT_ID: "traceo-kafka",
         KAFKA_HOSTS: "localhost:29092",
+
+        // liveness by heartbeat
         KAFKA_SESSION_TIMEOUT: 6000,
+
         KAFKA_GROUP_ID: "traceo-kafka-group",
         KAFKA_LOG_LEVEL: logLevel.WARN,
+
         PG_DB_NAME: "traceo_local",
         PG_HOST: "localhost",
         PG_PASS: "postgres",
         PG_PORT: 5432,
         PG_USER: "postgres",
+
         CLICKHOUSE_USER: 'default',
         CLICKHOUSE_HOST: 'http://localhost:8123',
         CLICKHOUSE_PASSWORD: '',
         CLICKHOUSE_DATABASE: `traceo_${process.env.NODE_ENV}`,
+
         TRACEO_API_KEY: "39ce1ecd-0e54-45fb-b478-8aefd1930d4b",
         TRACEO_PROJECT_ID: "TWkQuQEyZ0uS9XZ",
         TRACEO_HOST: "http://localhost:3000"
